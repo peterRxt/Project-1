@@ -2,277 +2,252 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>PERFORMANCE REPORT</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Links Manager</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #fff0f5;
-      color: #333;
-      margin: 0;
-      padding: 0;
+      background: #f4f6f9;
+      min-height: 100vh;
     }
-    .nav {
-      display: flex;
-      background-color: #ff66a3;
-      padding: 10px;
-      justify-content: center;
+
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
     }
-    .nav button {
-      margin: 0 10px;
-      padding: 12px 24px;
-      background-color: #fff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 16px;
-    }
-    .nav button:hover {
-      background-color: #ffe6f0;
-    }
-    .section {
+
+    .app-container {
       display: none;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
     }
-    .active {
-      display: block;
-    }
-    label, input[type=file], input[type=text], button {
-      display: block;
-      margin-top: 10px;
-      width: 100%;
-    }
-    input[type=file], input[type=text] {
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      font-size: 16px;
-    }
-    button {
-      background-color: #ff66a3;
-      color: white;
+
+    .card {
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 12px 20px;
-      margin-top: 10px;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
-    button:hover {
-      background-color: #e60073;
+
+    .header-box {
+      background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+      color: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
+
+    .repo-link {
+      text-decoration: none;
+      font-weight: 600;
     }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #ffb3d9;
-    }
-    #loading {
-      background-color: #e6ffe6 !important;
+
+    .repo-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="nav">
-    <button onclick="showSection('sequence')">Eastern Sequence</button>
-    <button onclick="showSection('loading')">Loading Plan</button>
+
+  <!-- LOGIN -->
+  <div class="container login-container" id="loginSection">
+    <div class="card p-4">
+      <h3 class="text-center mb-4">Projects Login</h3>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="passwordInput" placeholder="Enter Password">
+      </div>
+
+      <button class="btn btn-primary w-100" onclick="login()">Login</button>
+
+      <div class="text-danger mt-3 text-center" id="loginError"></div>
+    </div>
   </div>
 
-  <!-- Eastern Sequence Section -->
-  <div id="sequence" class="section">
-    <h1>Eastern Sequence Viewer</h1>
-    <label for="sequenceFile">Choose Eastern Sequence File:</label>
-    <input type="file" id="sequenceFile" accept=".xls,.xlsx" />
-    <button onclick="parseEasternFile()">Upload Eastern Sequence</button>
-    <button onclick="clearEastern()">Clear</button>
-    <div id="shopSection" style="display:none;">
-      <label>Select Shops:</label>
-      <div id="shopListContainer" style="max-height:200px;overflow-y:auto;border:1px solid #ccc;padding:10px;background:#fff;border-radius:6px;"></div>
-      <button onclick="viewSelectedShops()">View Weight</button>
-    </div>
-    <div id="resultText" style="margin-top:20px;background:#ffe6f0;padding:15px;border-radius:6px;font-size:16px;line-height:1.6;white-space:pre-line;"></div>
-    <button id="copyButton" style="display:none;" onclick="copyWeights()">Copy Weights</button>
-  </div>
+  <!-- APP -->
+  <div class="container py-4 app-container" id="appSection">
 
-  <!-- Loading Plan Section -->
-  <div id="loading" class="section">
-    <h1> Loading Plan Viewer</h1>
-    <label for="fileInput">Choose Loading Plan:</label>
-    <input type="file" id="fileInput" accept=".xls,.xlsx" />
-    <button onclick="parseFile()">Upload Loading Plan</button>
-    <button onclick="clearSelection()">Clear</button>
-    <div id="shopSectionLoading" style="display:none;">
-      <label for="shopInput">Select Shop:</label>
-      <input type="text" id="shopInput" placeholder="Type shop name..." list="shopList" />
-      <datalist id="shopList"></datalist>
-      <button onclick="viewSKUs()">View SKUs</button>
+    <div class="header-box">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2>Project Links Manager</h2>
+          <p class="mb-0">
+            Organize GitHub repositories, web apps, automation tools,
+            and analytics systems in one centralized dashboard.
+          </p>
+        </div>
+
+        <button class="btn btn-light" onclick="logout()">
+          Logout
+        </button>
+      </div>
     </div>
-    <div id="skuOutput"></div>
+
+    <!-- ADD FORM -->
+    <div class="card p-4 mb-4">
+      <h4 class="mb-3">Add New Project</h4>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">App Name</label>
+          <input type="text" class="form-control" id="appName">
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Description</label>
+          <input type="text" class="form-control" id="appDescription">
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Project Link</label>
+          <input type="url" class="form-control" id="appLink">
+        </div>
+      </div>
+
+      <button class="btn btn-success" onclick="addProject()">
+        Add Project
+      </button>
+    </div>
+
+    <!-- PROJECT LIST -->
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Saved Projects</h4>
+        <span class="badge bg-primary" id="projectCount">0 Projects</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>App Name</th>
+              <th>Description</th>
+              <th>Link</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="projectTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-    showSection('sequence');
+    const PASSWORD = "projects";
 
-    let sequenceRows = [];
-    function normalize(text) {
-      return (text || "").toString().trim().toLowerCase();
-    }
-    function parseEasternFile() {
-      const file = document.getElementById("sequenceFile").files[0];
-      if (!file) return alert("Please upload a file.");
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
-        sequenceRows = [];
-        rows.forEach(row => {
-          const shop = row[1];
-          const weight = parseFloat(row[4]);
-          if (shop && !isNaN(weight)) {
-            sequenceRows.push({ shop: shop.toString().trim(), weight });
-          }
-        });
-        populateShopCheckboxes();
-      };
-      reader.readAsArrayBuffer(file);
-    }
-    function populateShopCheckboxes() {
-      const shopSet = new Set();
-      sequenceRows.forEach(row => shopSet.add(row.shop));
-      const container = document.getElementById("shopListContainer");
-      container.innerHTML = "";
-      [...shopSet].sort().forEach(shop => {
-        const div = document.createElement("div");
-        div.innerHTML = `<input type="checkbox" value="${shop}"> ${shop}`;
-        container.appendChild(div);
-      });
-      document.getElementById("shopSection").style.display = "block";
-      document.getElementById("copyButton").style.display = "none";
-      document.getElementById("resultText").textContent = "";
-    }
-    function viewSelectedShops() {
-      const checkboxes = document.querySelectorAll("#shopListContainer input:checked");
-      const selectedShops = Array.from(checkboxes).map(cb => normalize(cb.value));
-      if (!selectedShops.length) return alert("Select at least one shop.");
-      const shopWeights = {};
-      sequenceRows.forEach(row => {
-        const shop = normalize(row.shop);
-        if (selectedShops.includes(shop)) {
-          shopWeights[shop] = (shopWeights[shop] || 0) + row.weight;
-        }
-      });
-      let output = "";
-      let total = 0;
-      Object.entries(shopWeights).forEach(([shop, weight]) => {
-        output += `${shop.charAt(0).toUpperCase() + shop.slice(1)}: ${weight.toFixed(2)} kg
-`;
-        total += weight;
-      });
-      output += `
-Total Weight: ${total.toFixed(2)} kg`;
-      document.getElementById("resultText").textContent = output;
-      document.getElementById("copyButton").style.display = "inline-block";
-    }
-    function copyWeights() {
-      navigator.clipboard.writeText(document.getElementById("resultText").textContent)
-        .then(() => alert("Weights copied to clipboard!"))
-        .catch(() => alert("Failed to copy."));
-    }
-    function clearEastern() {
-      document.getElementById("sequenceFile").value = "";
-      document.getElementById("shopListContainer").innerHTML = "";
-      document.getElementById("resultText").innerHTML = "";
-      document.getElementById("shopSection").style.display = "none";
-      document.getElementById("copyButton").style.display = "none";
+    let projects = JSON.parse(localStorage.getItem("projectsList")) || [];
+
+    // LOGIN
+    function login() {
+      const password = document.getElementById("passwordInput").value;
+      const error = document.getElementById("loginError");
+
+      if (password === PASSWORD) {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("appSection").style.display = "block";
+
+        sessionStorage.setItem("loggedIn", "true");
+
+        renderProjects();
+      } else {
+        error.innerText = "Invalid Password";
+      }
     }
 
-    let dataRows = [];
-    function parseFile() {
-      const file = document.getElementById("fileInput").files[0];
-      if (!file) return alert("Please upload a file.");
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const allRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
-        let headerRowIndex = -1;
-        let headerMap = {};
-        for (let i = 0; i < allRows.length; i++) {
-          const row = allRows[i].map(cell => normalize(cell));
-          if (row.includes("customer") && row.includes("description") && row.includes("qty to ship")) {
-            headerRowIndex = i;
-            row.forEach((cell, index) => headerMap[cell] = index);
-            break;
-          }
-        }
-        if (headerRowIndex === -1) {
-          alert("Could not find a row with headers: 'customer', 'description', and 'qty to ship'");
-          return;
-        }
-        dataRows = [];
-        for (let i = headerRowIndex + 1; i < allRows.length; i++) {
-          const row = allRows[i];
-          const entry = {
-            customer: row[headerMap["customer"]],
-            description: row[headerMap["description"]],
-            quantity: row[headerMap["qty to ship"]]
-          };
-          if (entry.customer && entry.description && entry.quantity != null) {
-            dataRows.push(entry);
-          }
-        }
-        populateShops();
-      };
-      reader.readAsArrayBuffer(file);
+    // AUTO LOGIN CHECK
+    window.onload = function () {
+      if (sessionStorage.getItem("loggedIn") === "true") {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("appSection").style.display = "block";
+
+        renderProjects();
+      }
+    };
+
+    // LOGOUT
+    function logout() {
+      sessionStorage.removeItem("loggedIn");
+
+      document.getElementById("appSection").style.display = "none";
+      document.getElementById("loginSection").style.display = "block";
+
+      document.getElementById("passwordInput").value = "";
     }
-    function populateShops() {
-      const shopSet = new Set();
-      dataRows.forEach(row => shopSet.add(row.customer.toString().trim()));
-      const datalist = document.getElementById("shopList");
-      datalist.innerHTML = "";
-      [...shopSet].sort().forEach(shop => {
-        const option = document.createElement("option");
-        option.value = shop;
-        datalist.appendChild(option);
-      });
-      document.getElementById("shopSectionLoading").style.display = "block";
-    }
-    function viewSKUs() {
-      const userInput = document.getElementById("shopInput").value.toLowerCase().trim();
-      if (!userInput) return alert("Please type a shop name.");
-      const filtered = dataRows.filter(row => normalize(row.customer).includes(userInput));
-      if (!filtered.length) {
-        document.getElementById("skuOutput").innerHTML = "<p>No SKUs found for this shop.</p>";
+
+    // ADD PROJECT
+    function addProject() {
+      const name = document.getElementById("appName").value.trim();
+      const description = document.getElementById("appDescription").value.trim();
+      const link = document.getElementById("appLink").value.trim();
+
+      if (!name || !description || !link) {
+        alert("Please fill all fields.");
         return;
       }
-      let table = "<table><tr><th>SKU (Description)</th><th>Quantity</th></tr>";
-      filtered.forEach(row => {
-        table += `<tr><td>${row.description}</td><td>${row.quantity}</td></tr>`;
-      });
-      table += "</table>";
-      document.getElementById("skuOutput").innerHTML = table;
+
+      const project = {
+        name,
+        description,
+        link
+      };
+
+      projects.push(project);
+
+      localStorage.setItem("projectsList", JSON.stringify(projects));
+
+      document.getElementById("appName").value = "";
+      document.getElementById("appDescription").value = "";
+      document.getElementById("appLink").value = "";
+
+      renderProjects();
     }
-    function clearSelection() {
-      document.getElementById("shopInput").value = "";
-      document.getElementById("skuOutput").innerHTML = "";
+
+    // RENDER PROJECTS
+    function renderProjects() {
+      const tableBody = document.getElementById("projectTableBody");
+
+      tableBody.innerHTML = "";
+
+      projects.forEach((project, index) => {
+        tableBody.innerHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${project.name}</td>
+            <td>${project.description}</td>
+            <td>
+              <a href="${project.link}" target="_blank" class="repo-link">
+                Open Link
+              </a>
+            </td>
+            <td>
+              <button class="btn btn-danger btn-sm"
+                onclick="deleteProject(${index})">
+                Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("projectCount").innerText =
+        `${projects.length} Projects`;
+    }
+
+    // DELETE PROJECT
+    function deleteProject(index) {
+      if (confirm("Delete this project?")) {
+        projects.splice(index, 1);
+
+        localStorage.setItem("projectsList", JSON.stringify(projects));
+
+        renderProjects();
+      }
     }
   </script>
+
 </body>
 </html>
